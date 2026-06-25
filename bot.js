@@ -1,6 +1,8 @@
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 
+const fs = require("fs");
+const path = require("path");
 const http = require("http");
 const downloadQueue = require("./queue");
 
