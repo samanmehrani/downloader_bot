@@ -7,7 +7,9 @@
     "start": "node bot.js"
   },
   "dependencies": {
-    "telegraf": "^4.16.3",
-    "dotenv": "^16.4.5"
+    "bullmq": "^5.79.1",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.11.1",
+    "telegraf": "^4.16.3"
   }
 }
