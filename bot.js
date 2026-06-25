@@ -16,22 +16,18 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
 bot.start(async (ctx) => {
   const filePath = path.join(__dirname, "public", "welcome.png");
 
+  const caption =
+    "🎬 Content Dock Bot\n\n" +
+    "Send me any video link and I will download it for you.\n\n" +
+    "⚡ Fast • Simple • Smart";
+
   if (!fs.existsSync(filePath)) {
-    return ctx.reply(
-      `Welcome to Content Dock Bot\n\n` +
-      `🎬 Send me any video link and I will download it for you automatically.\n\n` +
-      `⚡ Fast • Simple • Free\n`
-    );
+    return ctx.reply(caption);
   }
 
   await ctx.replyWithPhoto(
     { source: fs.createReadStream(filePath) },
-    {
-      caption:
-        `Welcome to Content Dock Bot\n\n` +
-        `🎬 Send me any video link and I will download it for you automatically.\n\n` +
-        `⚡ Fast • Simple • Free\n`
-    }
+    { caption }
   );
 });
 
@@ -55,7 +51,7 @@ bot.on("text", async (ctx) => {
     const result = await downloader.download(url);
 
     if (!result.success) {
-      return update(`❌ Failed: ${result.error}`);
+      return update(formatErrorForUser(result.error, result.site));
     }
 
     update("📤 Uploading video to Telegram...");
