@@ -41,14 +41,16 @@ bot.on("text", async (ctx) => {
   });
 });
 
+bot.launch();
+
+const http = require("http");
+
 const PORT = process.env.PORT || 2585;
 
 http.createServer((req, res) => {
   res.writeHead(200);
   res.end("Bot is alive");
 }).listen(PORT);
-
-bot.launch();
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
