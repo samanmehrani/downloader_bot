@@ -2,6 +2,7 @@ require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const { exec } = require("child_process");
 const http = require("http");
+const path = require("path");
 const fs = require("fs");
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
@@ -10,19 +11,20 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
   }
 });
 
-bot.start((ctx) => {
-  ctx.reply(
-    `Welcome!
-
-  Send me a video URL and I'll try to download and send the video back to you.
-
-  Examples:
-  • YouTube
-  • Instagram
-  • TikTok
-  • X (Twitter)
-
-  Just paste a link and wait.`
+bot.start(async (ctx) => {
+  await ctx.replyWithPhoto(
+    {
+      source: fs.createReadStream(
+        path.join(__dirname, "public", "welcome.png")
+      )
+    },
+    {
+      caption:
+        `Welcome to Video Downloader Bot\n\n` +
+        `🎬 Send me any video link and I will download it for you automatically.\n` +
+        `⚡ Fast • Simple • Free\n` +
+        `📎 Just paste your URL and wait...`
+    }
   );
 });
 
