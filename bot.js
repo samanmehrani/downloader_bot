@@ -41,14 +41,20 @@ bot.on("text", async (ctx) => {
     "⏳ Download request received.\n\n🎥 Fetching video information..."
   );
 
-  const cmd = `yt-dlp -f mp4 -o "${fileName}" "${url}"`;
+  const cmd = `yt-dlp -f "bestvideo+bestaudio" --merge-output-format mp4 -o "${fileName}" "${url}"`;
 
   exec(cmd, async (err) => {
     if (err) {
       console.error(err);
 
+      if (err.message.includes("410")) {
+        return ctx.reply(
+          "❌ This video is no longer available or blocked by the website."
+        );
+      }
+
       return ctx.reply(
-        "❌ Download Failed\n\nThe video could not be downloaded.\n\nPossible reasons:\n• Unsupported website\n• Private or restricted content\n• Video is unavailable\n• Temporary server issue"
+        "❌ Download failed. This site may not be supported."
       );
     }
 
