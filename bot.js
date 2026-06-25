@@ -23,7 +23,7 @@ bot.start(async (ctx) => {
     );
   }
 
-  await ctx.replyWithAnimation(
+  await ctx.replyWithPhoto(
     { source: fs.createReadStream(filePath) },
     {
       caption:
