@@ -3,7 +3,11 @@ const fs = require("fs");
 const { Telegraf } = require("telegraf");
 const connection = require("./redis");
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(process.env.BOT_TOKEN, {
+  telegram: {
+    apiRoot: "https://api.telegram.org"
+  }
+});
 
 new Worker(
   "downloads",

@@ -4,20 +4,12 @@ const { Telegraf } = require("telegraf");
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
-const express = require("express");
 const downloadQueue = require("./queue");
-
-const app = express();
-app.use(express.json());
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
   telegram: {
     apiRoot: "https://api.telegram.org"
   }
-});
-
-app.post(`/webhook/${process.env.BOT_TOKEN}`, (req, res) => {
-  bot.handleUpdate(req.body, res);
 });
 
 bot.start(async (ctx) => {
@@ -26,9 +18,8 @@ bot.start(async (ctx) => {
   if (!fs.existsSync(filePath)) {
     return ctx.reply(
       `Welcome to Video Downloader Bot\n\n` +
-      `🎬 Send me any video link and I will download it for you automatically.\n` +
-      `⚡ Fast • Simple • Free\n` +
-      `📎 Just paste your URL and wait...`
+      `🎬 Send me any video link and I will download it for you automatically.\n\n` +
+      `⚡ Fast • Simple • Free\n`
     );
   }
 
@@ -58,18 +49,9 @@ bot.on("text", async (ctx) => {
   ctx.reply(`⏳ Added to queue...\nJob ID: ${job.id}`);
 });
 
-app.listen(PORT, async () => {
-  console.log(`🚀 Webhook bot running on ${PORT}`);
-
-  // set webhook automatically
-  await bot.telegram.setWebhook(
-    `${process.env.WEBHOOK_URL}/webhook/${process.env.BOT_TOKEN}`
-  );
-});
+const PORT = process.env.PORT || 2585;
 
 bot.launch();
-
-const PORT = process.env.PORT || 2585;
 
 http.createServer((req, res) => {
   res.writeHead(200);
