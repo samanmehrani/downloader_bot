@@ -4,7 +4,11 @@ const { Telegraf } = require("telegraf");
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
+const express = require("express");
 const downloadQueue = require("./queue");
+
+const app = express();
+app.use(express.json());
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
   telegram: {
@@ -12,8 +16,12 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
   }
 });
 
+app.post(`/webhook/${process.env.BOT_TOKEN}`, (req, res) => {
+  bot.handleUpdate(req.body, res);
+});
+
 bot.start(async (ctx) => {
-  const filePath = path.join(__dirname, "public", "177e68be6786805bb41ff5ac4ce9a939.gif");
+  const filePath = path.join(__dirname, "public", "welcome.png");
 
   if (!fs.existsSync(filePath)) {
     return ctx.reply(
@@ -38,7 +46,7 @@ bot.start(async (ctx) => {
 bot.on("text", async (ctx) => {
   const url = ctx.message.text;
 
-  if (!url.startsWith("http")) {
+  if (!/^https?:\/\//.test(url)) {
     return ctx.reply("❌ Invalid URL");
   }
 
@@ -48,6 +56,15 @@ bot.on("text", async (ctx) => {
   });
 
   ctx.reply(`⏳ Added to queue...\nJob ID: ${job.id}`);
+});
+
+app.listen(PORT, async () => {
+  console.log(`🚀 Webhook bot running on ${PORT}`);
+
+  // set webhook automatically
+  await bot.telegram.setWebhook(
+    `${process.env.WEBHOOK_URL}/webhook/${process.env.BOT_TOKEN}`
+  );
 });
 
 bot.launch();
