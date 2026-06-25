@@ -1,10 +1,11 @@
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
-
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const { exec } = require("child_process");
+
+const downloader = require("./downloader.engine");
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
   telegram: {
@@ -41,51 +42,36 @@ bot.on("text", async (ctx) => {
     return ctx.reply("❌ Invalid URL");
   }
 
-  const fileName = `/tmp/video_${Date.now()}.mp4`;
-
   const status = await ctx.reply("⏳ Processing your request...");
 
-  const update = (text) =>
-    ctx.telegram.editMessageText(
-      ctx.chat.id,
-      status.message_id,
-      undefined,
-      text
-    ).catch(() => { });
+  const update = (t) =>
+    ctx.telegram
+      .editMessageText(ctx.chat.id, status.message_id, undefined, t)
+      .catch(() => { });
 
-  update("🔍 Analyzing link...");
+  try {
+    update("🔍 Detecting platform...");
 
-  const cmd = `yt-dlp -f best --merge-output-format mp4 -o "${fileName}" "${url}"`;
+    const result = await downloader.download(url);
 
-  exec(cmd, async (err) => {
-    if (err) {
-      console.error(err);
-      return update("❌ Download failed (unsupported or blocked site)");
+    if (!result.success) {
+      return update(`❌ Failed: ${result.error}`);
     }
 
-    update("📤 Uploading video...");
+    update("📤 Uploading video to Telegram...");
 
-    try {
-      let tries = 0;
-      while (!fs.existsSync(fileName) && tries < 20) {
-        await new Promise(r => setTimeout(r, 500));
-        tries++;
-      }
+    await ctx.replyWithVideo({ source: result.file });
 
-      if (!fs.existsSync(fileName)) {
-        return update("❌ File not generated");
-      }
+    update("🧹 Cleaning up...");
 
-      await ctx.replyWithVideo({ source: fileName });
+    fs.unlinkSync(result.file);
 
-      fs.unlinkSync(fileName);
+    update(`✅ Done! (${result.site}, attempt ${result.attempt})`);
 
-      update("✅ Done! Video sent successfully.");
-    } catch (e) {
-      console.error(e);
-      update("❌ Upload failed (file too large or Telegram error)");
-    }
-  });
+  } catch (err) {
+    console.error(err);
+    update("❌ Unexpected error occurred");
+  }
 });
 
 bot.launch({
