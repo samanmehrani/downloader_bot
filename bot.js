@@ -13,7 +13,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
 });
 
 bot.start(async (ctx) => {
-  const filePath = path.join(__dirname, "public", "welcome.gif");
+  const filePath = path.join(__dirname, "public", "177e68be6786805bb41ff5ac4ce9a939.gif");
 
   if (!fs.existsSync(filePath)) {
     return ctx.reply(
@@ -29,9 +29,8 @@ bot.start(async (ctx) => {
     {
       caption:
         `Welcome to Video Downloader Bot\n\n` +
-        `🎬 Send me any video link and I will download it for you automatically.\n` +
-        `⚡ Fast • Simple • Free\n` +
-        `📎 Just paste your URL and wait...`
+        `🎬 Send me any video link and I will download it for you automatically.\n\n` +
+        `⚡ Fast • Simple • Free\n`
     }
   );
 });
