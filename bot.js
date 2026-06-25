@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const { exec } = require("child_process");
+const http = require("http");
 const fs = require("fs");
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
@@ -10,40 +11,70 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
 });
 
 bot.start((ctx) => {
-  ctx.reply("Send me a video link 🎥");
+  ctx.reply(
+    `Welcome!
+
+    Send me a video URL and I'll try to download and send the video back to you.
+
+    Examples:
+    • YouTube
+    • Instagram
+    • TikTok
+    • X (Twitter)
+
+    Just paste a link and wait.`
+  );
 });
 
 bot.on("text", async (ctx) => {
   const url = ctx.message.text;
 
   if (!url.startsWith("http")) {
-    return ctx.reply("Invalid link ❌");
+    return ctx.reply(
+      "❌ Invalid URL\n\nPlease send a valid video link."
+    );
   }
 
   const fileName = `video_${Date.now()}.mp4`;
 
-  await ctx.reply("Downloading... ⏳");
+  await ctx.reply(
+    "⏳ Download request received.\n\n🎥 Fetching video information..."
+  );
 
   const cmd = `yt-dlp -f mp4 -o "${fileName}" "${url}"`;
 
   exec(cmd, async (err) => {
     if (err) {
-      console.log(err);
-      return ctx.reply("Download failed ❌");
+      console.error(err);
+
+      return ctx.reply(
+        "❌ Download Failed\n\nThe video could not be downloaded.\n\nPossible reasons:\n• Unsupported website\n• Private or restricted content\n• Video is unavailable\n• Temporary server issue"
+      );
     }
 
     try {
+      await ctx.reply(
+        "📤 Uploading video...\n\nPlease wait a moment."
+      );
+
       await ctx.replyWithVideo({ source: fileName });
+
       fs.unlinkSync(fileName);
+
+      await ctx.reply(
+        "✅ Download Completed\n\nYour video has been delivered successfully."
+      );
     } catch (e) {
-      ctx.reply("Upload failed ❌");
+      console.error(e);
+
+      ctx.reply(
+        "❌ Upload Failed\n\nThe video was downloaded successfully, but Telegram could not upload it.\n\nThe file may be too large."
+      );
     }
   });
 });
 
 bot.launch();
-
-const http = require("http");
 
 const PORT = process.env.PORT || 2585;
 
@@ -55,6 +86,4 @@ http.createServer((req, res) => {
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
 
-const http = require("http");
-
-console.log("Bot is running...");
+console.log(`Bot is running on port ${PORT}`);
