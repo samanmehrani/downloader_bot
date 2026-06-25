@@ -19,4 +19,4 @@ ENV PORT=2585
 
 EXPOSE 2585
 
-CMD ["npm", "start"]
+CMD ["node", "worker/worker.js"]

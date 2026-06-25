@@ -17,7 +17,7 @@ bot.start(async (ctx) => {
 
   if (!fs.existsSync(filePath)) {
     return ctx.reply(
-      `Welcome to Video Downloader Bot\n\n` +
+      `Welcome to Content Dock Bot\n\n` +
       `🎬 Send me any video link and I will download it for you automatically.\n\n` +
       `⚡ Fast • Simple • Free\n`
     );
@@ -27,7 +27,7 @@ bot.start(async (ctx) => {
     { source: fs.createReadStream(filePath) },
     {
       caption:
-        `Welcome to Video Downloader Bot\n\n` +
+        `Welcome to Content Dock Bot\n\n` +
         `🎬 Send me any video link and I will download it for you automatically.\n\n` +
         `⚡ Fast • Simple • Free\n`
     }
@@ -45,13 +45,13 @@ bot.on("text", async (ctx) => {
     url,
     chatId: ctx.chat.id
   });
+});
 
-  ctx.reply(`⏳ Added to queue...\nJob ID: ${job.id}`);
+bot.launch({
+  dropPendingUpdates: true
 });
 
 const PORT = process.env.PORT || 2585;
-
-bot.launch();
 
 http.createServer((req, res) => {
   res.writeHead(200);
