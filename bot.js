@@ -51,7 +51,7 @@ bot.on("text", async (ctx) => {
     const result = await downloader.download(url);
 
     if (!result.success) {
-      return update(formatErrorForUser(result.error, result.site));
+      return update(downloader.formatErrorForUser(result.error, result.site));
     }
 
     update("📤 Uploading video to Telegram...");
