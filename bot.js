@@ -14,15 +14,15 @@ bot.start((ctx) => {
   ctx.reply(
     `Welcome!
 
-    Send me a video URL and I'll try to download and send the video back to you.
+  Send me a video URL and I'll try to download and send the video back to you.
 
-    Examples:
-    • YouTube
-    • Instagram
-    • TikTok
-    • X (Twitter)
+  Examples:
+  • YouTube
+  • Instagram
+  • TikTok
+  • X (Twitter)
 
-    Just paste a link and wait.`
+  Just paste a link and wait.`
   );
 });
 
