@@ -41,9 +41,50 @@ bot.on("text", async (ctx) => {
     return ctx.reply("❌ Invalid URL");
   }
 
-  const job = await downloadQueue.add("download", {
-    url,
-    chatId: ctx.chat.id
+  const fileName = `/tmp/video_${Date.now()}.mp4`;
+
+  const status = await ctx.reply("⏳ Processing your request...");
+
+  const update = (text) =>
+    ctx.telegram.editMessageText(
+      ctx.chat.id,
+      status.message_id,
+      undefined,
+      text
+    ).catch(() => { });
+
+  update("🔍 Analyzing link...");
+
+  const cmd = `yt-dlp -f best --merge-output-format mp4 -o "${fileName}" "${url}"`;
+
+  exec(cmd, async (err) => {
+    if (err) {
+      console.error(err);
+      return update("❌ Download failed (unsupported or blocked site)");
+    }
+
+    update("📤 Uploading video...");
+
+    try {
+      let tries = 0;
+      while (!fs.existsSync(fileName) && tries < 20) {
+        await new Promise(r => setTimeout(r, 500));
+        tries++;
+      }
+
+      if (!fs.existsSync(fileName)) {
+        return update("❌ File not generated");
+      }
+
+      await ctx.replyWithVideo({ source: fileName });
+
+      fs.unlinkSync(fileName);
+
+      update("✅ Done! Video sent successfully.");
+    } catch (e) {
+      console.error(e);
+      update("❌ Upload failed (file too large or Telegram error)");
+    }
   });
 });
 
