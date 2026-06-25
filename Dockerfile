@@ -11,6 +11,8 @@ COPY package*.json ./
 
 RUN npm install
 
+RUN yt-dlp --version
+
 COPY . .
 
 ENV NODE_ENV=production
